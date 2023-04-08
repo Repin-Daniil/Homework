@@ -57,12 +57,13 @@ void StringView::RemovePrefix(size_t prefix_size) {
   data_ += prefix_size;
   size_ -= prefix_size;
 }
+
 void StringView::RemoveSuffix(size_t suffix_size) {
   size_ -= suffix_size;
 }
 
 StringView StringView::Substr(size_t pos, size_t count) {
-  if ((pos + std::min(count, Size() - pos) > Size())) {
+  if (pos + std::min(count, Size() - pos) > Size()) {
     throw StringViewOutOfRange{};
   }
 
