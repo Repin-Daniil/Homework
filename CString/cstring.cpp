@@ -74,6 +74,7 @@ char *Strncat(char *dest, const char *src, size_t count) {
   if (*src && count != 0) {
     Strncpy(dest + Strlen(dest), src, count);
   }
+  
   return dest;
 }
 
