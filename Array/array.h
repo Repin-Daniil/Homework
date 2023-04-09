@@ -1,5 +1,6 @@
 #ifndef ARRAY__ARRAY_H_
 #define ARRAY__ARRAY_H_
+#define ARRAY_TRAITS_IMPLEMENTED
 #include <stdexcept>
 
 class ArrayOutOfRange : public std::out_of_range {
@@ -8,7 +9,7 @@ class ArrayOutOfRange : public std::out_of_range {
   }
 };
 
-template<typename T, size_t N>
+template <typename T, size_t N>
 class Array {
  public:
   T arr[N];
@@ -81,4 +82,34 @@ class Array {
     std::swap(*this, other);
   }
 };
+
+template <typename T>
+size_t GetSize(T) {
+  return 0;
+}
+
+template <typename T, size_t N>
+size_t GetSize(T (&)[N]) {
+  return N;
+}
+
+template <typename T>
+size_t GetRank(T) {
+  return 0;
+}
+
+template <typename T, size_t N>
+size_t GetRank(T (&array)[N]) {
+  return 1 + GetRank(*array);
+}
+
+template <typename T>
+size_t GetNumElements(T) {
+  return 1;
+}
+
+template <typename T, size_t N>
+size_t GetNumElements(T (&array)[N]) {
+  return N * GetNumElements(*array);
+}
 #endif
