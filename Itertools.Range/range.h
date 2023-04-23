@@ -6,36 +6,35 @@
 
 class RangeObj {
  private:
-  int64_t start_;
-  int64_t finish_;
-  int64_t size_;
-  int64_t step_;
+  int start_;
+  int finish_;
+  int size_;
+  int step_;
 
  public:
   // Constructors of Range Object
   RangeObj() = default;
 
-  RangeObj(int64_t start, int64_t finish, int64_t size, int64_t step)
-      : start_(start), finish_(finish), size_(size), step_(step) {
+  RangeObj(int start, int finish, int size, int step) : start_(start), finish_(finish), size_(size), step_(step) {
   }
 
   class Iterator {
    private:
-    int64_t curr_;
-    int64_t step_;
+    int curr_;
+    int step_;
 
    public:
     // Getters
-    int64_t GetCurr() const {
+    int GetCurr() const {
       return curr_;
     }
 
-    int64_t GetStep() const {
+    int GetStep() const {
       return step_;
     }
 
     // Constructors
-    Iterator(int64_t curr, int64_t step) : curr_(curr), step_(step) {
+    Iterator(int curr, int step) : curr_(curr), step_(step) {
     }
 
     Iterator(const Iterator &other) = default;
@@ -47,37 +46,37 @@ class RangeObj {
     }
 
     Iterator operator++(int) {
-      int64_t copy = curr_;
+      int copy = curr_;
       curr_ += step_;
       return Iterator(copy, step_);
     }
 
-    int64_t *operator->() {
+    int *operator->() {
       return &curr_;
     }
 
-    int64_t &operator*() {
+    int &operator*() {
       return curr_;
     }
   };
 
   class RIterator {
    private:
-    int64_t curr_;
-    int64_t step_;
+    int curr_;
+    int step_;
 
    public:
     // Getters
-    int64_t GetCurr() const {
+    int GetCurr() const {
       return curr_;
     }
 
-    int64_t GetStep() const {
+    int GetStep() const {
       return step_;
     }
 
     // Constructors
-    RIterator(int64_t curr, int64_t step) : curr_(curr), step_(step) {
+    RIterator(int curr, int step) : curr_(curr), step_(step) {
     }
 
     RIterator(const RIterator &other) = default;
@@ -89,16 +88,16 @@ class RangeObj {
     }
 
     RIterator operator++(int) {
-      int64_t copy = curr_;
+      int copy = curr_;
       curr_ -= step_;
       return RIterator(copy, step_);
     }
 
-    int64_t *operator->() {
+    int *operator->() {
       return &curr_;
     }
 
-    int64_t &operator*() {
+    int &operator*() {
       return curr_;
     }
   };
@@ -121,21 +120,20 @@ class RangeObj {
   }
 };
 
-inline RangeObj Range(int64_t start, int64_t end, int64_t step = 1) {
-  int64_t size = 0;
-
-  if (step > 0 && start < end) {
-    size = (end - start) / step + ((end - start) % step != 0);
-  } else if (step < 0 && start > end) {
-    size = (end - start) / step + ((end - start) % step != 0);
-  } else {
+inline RangeObj Range(int start, int end, int step = 1) {
+  if (step == 0 || start == end) {
     return RangeObj(0, 0, 0, 0);
   }
 
-  return RangeObj(start, end, size, step);
+  if ((step > 0) == (start < end)) {
+    int size = (end - start) / step + ((end - start) % step != 0);
+    return RangeObj(start, end, size, step);
+  }
+
+  return RangeObj(0, 0, 0, 0);
 }
 
-inline RangeObj Range(int64_t end) {
+inline RangeObj Range(int end) {
   return RangeObj(0, end, (end < 0 ? 0 : end), 1);
 }
 
