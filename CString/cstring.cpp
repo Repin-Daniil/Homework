@@ -30,31 +30,31 @@ int Strncmp(const char *first, const char *second, size_t count) {
 }
 
 char *Strcpy(char *dest, const char *src) {
-  char *str = dest;
+  size_t i = 0;
 
   while (*src) {
-    *str = *src;
+    dest[i] = *src;
     ++src;
-    ++str;
+    ++i;
   }
 
-  *str = *src;
+  dest[i] = *src;
   return dest;
 }
 
 char *Strncpy(char *dest, const char *src, size_t count) {
-  char *str = dest;
+  size_t i = 0;
 
   while (*src && (count > 0)) {
-    *str = *src;
+    dest[i] = *src;
     ++src;
-    ++str;
+    ++i;
     --count;
   }
 
   while (count > 0) {
-    *str = *src;
-    ++str;
+    dest[i] = *src;
+    ++i;
     --count;
   }
 
@@ -74,7 +74,7 @@ char *Strncat(char *dest, const char *src, size_t count) {
   if (*src && count != 0) {
     Strncpy(dest + Strlen(dest), src, count);
   }
-  
+
   return dest;
 }
 
