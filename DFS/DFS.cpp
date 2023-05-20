@@ -6,19 +6,19 @@ class Graph {
  public:
   explicit Graph(int n) {
     vertexes_ = std::vector<std::unordered_set<int>>(n);
+    parents_ = std::vector<int>(n, -1);
   }
 
   void FindCycle() {
     std::vector<Color> visited = std::vector<Color>(vertexes_.size(), WHITE);
 
     for (size_t i = 0; i < vertexes_.size(); ++i) {
-      try {
-        DFS(i, visited);
-      } catch (Finish &ex) {
+      if (has_cycle_) {
         return;
       }
-    }
 
+      DFS(i, visited);
+    }
     std::cout << "NO";
   }
 
@@ -26,42 +26,33 @@ class Graph {
 
  private:
   std::vector<std::unordered_set<int>> vertexes_;
-  std::vector<int> cycle_;
+  std::vector<int> parents_;
+  bool has_cycle_ = false;
   enum Color { WHITE, GREY, BLACK };
 
-  struct CycleEx {
-    size_t cycle_start;
-    explicit CycleEx(int cycle_start) : cycle_start(cycle_start) {
+  void PrintCycle(int start, int curr) {
+    if (start != curr) {
+      PrintCycle(start, parents_[curr]);
     }
-  };
 
-  struct Finish {};
+    std::cout << curr + 1 << ' ';
+  }
 
   void DFS(size_t vertex, std::vector<Color> &visited) {
     visited[vertex] = GREY;
 
     for (auto neighbour : vertexes_[vertex]) {
-      if (visited[neighbour] == GREY) {
-        cycle_ = std::vector<int>();
-        cycle_.push_back(vertex);
-        throw CycleEx(neighbour);
+      if (has_cycle_) {
+        break;
       }
 
-      if (visited[neighbour] == WHITE) {
-        try {
-          DFS(neighbour, visited);
-        } catch (CycleEx &ex) {
-          cycle_.push_back(vertex);
-          if (vertex == ex.cycle_start) {
-            std::cout << "YES\n";
-
-            for (size_t i = 1; i <= cycle_.size(); ++i) {
-              std::cout << cycle_[cycle_.size() - i] + 1 << ' ';
-            }
-            throw Finish();
-          }
-          throw;
-        }
+      if (visited[neighbour] == GREY) {
+        std::cout << "YES\n";
+        PrintCycle(neighbour, vertex);
+        has_cycle_ = true;
+      } else if (visited[neighbour] == WHITE) {
+        parents_[neighbour] = vertex;
+        DFS(neighbour, visited);
       }
     }
 
@@ -80,8 +71,6 @@ std::istream &operator>>(std::istream &is, Graph &g) {
 
 int main() {
   int v, e;
-  std::cin.tie(nullptr);
-  std::cout.tie(nullptr);
   std::cin >> v >> e;
   Graph g(v);
 
