@@ -12,15 +12,14 @@ class Graph {
     std::vector<Color> visited = std::vector<Color>(vertexes_.size(), WHITE);
 
     for (size_t i = 0; i < vertexes_.size(); ++i) {
-      DFS(i, visited);
-      if (!cycle_.empty()) {
-        break;
+      try {
+        DFS(i, visited);
+      } catch (Finish &ex) {
+        return;
       }
     }
 
-    if (cycle_.empty()) {
-      std::cout << "NO";
-    }
+    std::cout << "NO";
   }
 
   friend std::istream &operator>>(std::istream &is, Graph &g);
@@ -36,6 +35,8 @@ class Graph {
     }
   };
 
+  struct Finish {};
+
   void DFS(size_t vertex, std::vector<Color> &visited) {
     visited[vertex] = GREY;
 
@@ -47,23 +48,19 @@ class Graph {
       }
 
       if (visited[neighbour] == WHITE) {
-        if (cycle_.empty()) {
-          try {
-            DFS(neighbour, visited);
-          } catch (CycleEx &ex) {
-            cycle_.push_back(vertex);
-            if (vertex == ex.cycle_start) {
-              std::cout << "YES\n";
+        try {
+          DFS(neighbour, visited);
+        } catch (CycleEx &ex) {
+          cycle_.push_back(vertex);
+          if (vertex == ex.cycle_start) {
+            std::cout << "YES\n";
 
-              for (size_t i = 1; i <= cycle_.size(); ++i) {
-                std::cout << cycle_[cycle_.size() - i] + 1 << ' ';
-              }
-              break;
+            for (size_t i = 1; i <= cycle_.size(); ++i) {
+              std::cout << cycle_[cycle_.size() - i] + 1 << ' ';
             }
-            throw;
+            throw Finish();
           }
-        } else {
-          break;
+          throw;
         }
       }
     }
@@ -83,6 +80,8 @@ std::istream &operator>>(std::istream &is, Graph &g) {
 
 int main() {
   int v, e;
+  std::cin.tie(nullptr);
+  std::cout.tie(nullptr);
   std::cin >> v >> e;
   Graph g(v);
 
