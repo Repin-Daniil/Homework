@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
+#include <set>
 #include <algorithm>
 
 using std::vector;
-
 enum Color { WHITE, GREY, BLACK };
 struct Vertex {
   int index = -1;
@@ -26,44 +26,46 @@ class Graph {
   void PrintArticulationPoints() {
     for (auto &vertex : vertexes_) {
       if (vertex.color == WHITE) {
-        DFS(vertex);
+        DFS(vertex, vertexes_[0]);
       }
+    }
+    std::cout << bridges.size() << '\n';
+    for(auto x : bridges) {
+      std::cout << x.first + 1 << ' ' << x.second + 1 << '\n';
     }
   }
 
   friend std::istream &operator>>(std::istream &is, Graph &g);
 
  private:
-
   vector<Vertex> vertexes_;
-//  std::unordered_set<int> articulation_points_set_;
+  std::set<std::pair<int, int>> bridges;
 
   // Methods
-  void DFS(Vertex &v) {
-//    v.visited = true;
-    v.color = GREY;
-    v.time_in = v.time_up = ++Vertex::time;
+  void DFS(Vertex &curr, Vertex &ancestor) {
+    curr.color = GREY;
+    curr.time_in = curr.time_up = ++Vertex::time;
 
-    for (auto x : v.edges) {
-      if (v.index == vertexes_[x].index) {
+    for (auto x : curr.edges) {
+      if (x == ancestor.index) {
         continue;
       }
 
-//      if (vertexes_[x].visited) {
       if (vertexes_[x].color == GREY) {
-        v.time_up = std::min(v.time_up, vertexes_[x].time_in);
+        curr.time_up = std::min(curr.time_up, vertexes_[x].time_in);
       }
-      if (vertexes_[x].color == WHITE) {
-        DFS(vertexes_[x]);
-        v.time_up = std::min(v.time_up, vertexes_[x].time_up);
 
-        if (v.time_in < vertexes_[x].time_up) {
-//          articulation_points_set_.insert(std::pair<int, int>);
-          std::cout << v.index + 1 << ' ' << vertexes_[x].index + 1 << '\n';
+      if (vertexes_[x].color == WHITE) {
+        DFS(vertexes_[x], curr);
+        curr.time_up = std::min(curr.time_up, vertexes_[x].time_up);
+
+        if (curr.time_in < vertexes_[x].time_up) {
+          bridges.insert({curr.index, x});
         }
       }
     }
-    v.color = BLACK;
+
+    curr.color = BLACK;
   }
 };
 
@@ -93,4 +95,3 @@ int main() {
   g.PrintArticulationPoints();
   return 0;
 }
-
