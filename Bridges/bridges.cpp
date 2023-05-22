@@ -1,16 +1,15 @@
 #include <iostream>
 #include <vector>
-#include <unordered_set>
 #include <algorithm>
 
 using std::vector;
 
 enum Color { WHITE, GREY, BLACK };
 struct Vertex {
-  int index;
-  int time_in;
-  int time_up;
-  bool visited = false;
+  int index = -1;
+  int time_in = 0;
+  int time_up = 0;
+  Color color = WHITE;
   vector<int> edges;
   static int time;
 };
@@ -19,18 +18,16 @@ int Vertex::time;
 
 class Graph {
  public:
-
   explicit Graph(int n) {
     Vertex::time = 0;
-    vertexes_ = vector<vector<Vertex>>(n);
+    vertexes_ = vector<Vertex>(n);
   }
 
   void PrintArticulationPoints() {
-    DFS(vertexes_[0][0], true);
-    std::cout << articulation_points_.size() << '\n';
-
-    for (auto point : articulation_points_) {
-      std::cout << point + 1 << '\n';
+    for (auto &vertex : vertexes_) {
+      if (vertex.color == WHITE) {
+        DFS(vertex);
+      }
     }
   }
 
@@ -38,31 +35,35 @@ class Graph {
 
  private:
 
-  vector<vector<Vertex>> vertexes_;
-  std::unordered_set<int> articulation_points_;
+  vector<Vertex> vertexes_;
+//  std::unordered_set<int> articulation_points_set_;
 
   // Methods
-  void DFS(Vertex &v, bool is_root) {
-    v.visited = true;
+  void DFS(Vertex &v) {
+//    v.visited = true;
+    v.color = GREY;
     v.time_in = v.time_up = ++Vertex::time;
-    int children_amount = 0;
 
-    for (auto neighbour : vertexes_[v.index]) {
-      if (neighbour.visited) {
-        v.time_up = std::min(v.time_up, neighbour.time_in);
-      } else {
-        ++children_amount;
-        DFS(neighbour, false);
-        v.time_up = std::min(v.time_up, neighbour.time_up);
+    for (auto x : v.edges) {
+      if (v.index == vertexes_[x].index) {
+        continue;
+      }
 
-        if (!is_root && v.time_in <= neighbour.time_up) {
-          articulation_points_.insert(v.index);
+//      if (vertexes_[x].visited) {
+      if (vertexes_[x].color == GREY) {
+        v.time_up = std::min(v.time_up, vertexes_[x].time_in);
+      }
+      if (vertexes_[x].color == WHITE) {
+        DFS(vertexes_[x]);
+        v.time_up = std::min(v.time_up, vertexes_[x].time_up);
+
+        if (v.time_in < vertexes_[x].time_up) {
+//          articulation_points_set_.insert(std::pair<int, int>);
+          std::cout << v.index + 1 << ' ' << vertexes_[x].index + 1 << '\n';
         }
       }
     }
-    if (is_root && children_amount > 1) {
-      articulation_points_.insert(v.index);
-    }
+    v.color = BLACK;
   }
 };
 
@@ -71,14 +72,18 @@ std::istream &operator>>(std::istream &is, Graph &g) {
   is >> begin >> end;
   --begin;
   --end;
-  g.vertexes_[begin].push_back({end, 0, 0});
-  g.vertexes_[end].push_back({begin, 0, 0});
+
+  g.vertexes_[begin].index = begin;
+  g.vertexes_[end].index = end;
+  g.vertexes_[begin].edges.push_back(end);
+  g.vertexes_[end].edges.push_back(begin);
+
   return is;
 }
 
 int main() {
   int v, e;
-  std::cin >> e >> v;
+  std::cin >> v >> e;
   Graph g(v);
 
   for (int i = 0; i < e; ++i) {
@@ -86,4 +91,6 @@ int main() {
   }
 
   g.PrintArticulationPoints();
+  return 0;
 }
+
