@@ -2,15 +2,23 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <unordered_set>
+#include <map>
 
 using std::vector;
+struct Edge {
+  int start;
+  int finish;
+  bool is_parallel = false;
+};
+
 enum Color { WHITE, GREY, BLACK };
 struct Vertex {
   int index = -1;
   int time_in = 0;
   int time_up = 0;
   Color color = WHITE;
-  vector<int> edges;
+  std::unordered_set<int> edges;
   static int time;
 };
 
@@ -18,9 +26,10 @@ int Vertex::time;
 
 class Graph {
  public:
-  explicit Graph(int n) {
+  explicit Graph(int n, int e) {
     Vertex::time = 0;
     vertexes_ = vector<Vertex>(n);
+    edges_ = vector<Edge>(e);
   }
 
   void PrintArticulationPoints() {
@@ -40,7 +49,7 @@ class Graph {
  private:
   vector<Vertex> vertexes_;
   std::set<std::pair<int, int>> bridges;
-
+  std::vector<Edge> edges_;
   // Methods
   void DFS(Vertex &curr, Vertex &ancestor) {
     curr.color = GREY;
@@ -60,6 +69,7 @@ class Graph {
         curr.time_up = std::min(curr.time_up, vertexes_[x].time_up);
 
         if (curr.time_in < vertexes_[x].time_up) {
+
           bridges.insert({curr.index, x});
         }
       }
@@ -74,11 +84,11 @@ std::istream &operator>>(std::istream &is, Graph &g) {
   is >> begin >> end;
   --begin;
   --end;
-
+  g.edges_.push_back({std::min(begin, end), std::max(begin, end)})
   g.vertexes_[begin].index = begin;
   g.vertexes_[end].index = end;
-  g.vertexes_[begin].edges.push_back(end);
-  g.vertexes_[end].edges.push_back(begin);
+  g.vertexes_[begin].edges.insert(end);
+  g.vertexes_[end].edges.insert(begin);
 
   return is;
 }
@@ -86,7 +96,7 @@ std::istream &operator>>(std::istream &is, Graph &g) {
 int main() {
   int v, e;
   std::cin >> v >> e;
-  Graph g(v);
+  Graph g(v, e);
 
   for (int i = 0; i < e; ++i) {
     std::cin >> g;
