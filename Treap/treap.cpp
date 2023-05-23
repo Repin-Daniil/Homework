@@ -1,81 +1,32 @@
 #include <iostream>
 #include <vector>
+#include <memory>
 
 struct Node {
-  int key;
-  int priority;
+  int key = -1;
+  int priority = -1;
+  int number = -1;
+  std::shared_ptr<Node> left;
+  std::shared_ptr<Node> right;
+  std::weak_ptr<Node> parent;
 
-  Node *left = nullptr;
-  Node *right = nullptr;
-  Node *parent = nullptr;
-
-  Node(int key, int priority) : key(key), priority(priority) {}
+  Node() = default;
+  Node(int key, int priority, int number) : key(key), priority(priority), number(number) {
+  }
 };
 
-using pair = std::pair<Node *, Node *>;
-pair Split(Node *root, int key) {
-  if (root == nullptr) {
-    return {nullptr, nullptr};
-  }
+std::shared_ptr<Node> Build(std::vector<std::pair<int, int>> &values, std::vector<std::shared_ptr<Node>> &ans) {
+  std::shared_ptr<Node> root;
+  std::shared_ptr<Node> last_inserted;
 
-  if (root->key < key) {
-    pair res = Split(root->right, key);
-    root->right = res.first;
-    res.second->parent = nullptr;
-    return {root, res.second};
-  }
+  for (size_t i = 0; i < values.size(); ++i) {
+    auto value = values[i];
+    std::shared_ptr<Node> new_node = std::make_shared<Node>(value.first, value.second, i + 1);
+    ans.push_back(new_node);
+    std::shared_ptr<Node> curr = last_inserted;
 
-  pair res = Split(root->left, key);
-  root->left = res.second;
-  res.first->parent = nullptr;
-  return {res.first, root};
-}
-
-Node *Merge(Node *first, Node *second) {
-  if (first == nullptr) {
-    return second;
-  }
-
-  if (second == nullptr) {
-    return first;
-  }
-
-  if (first->priority > second->priority) {
-    Node *res = Merge(first->right, second);
-    first->right = res;
-    res->parent = first;
-    return first;
-  }
-
-  Node *res = Merge(first, second->left);
-  second->left = res;
-  res->parent = second;
-  return second;
-}
-
-Node *Insert(Node *root, int key, int priority) {
-  auto node = new Node(key, priority);
-  pair separated = Split(root, key);
-  Node *res = Merge(node, separated.second);
-  return Merge(separated.first, res);
-}
-
-Node *Erase(Node *root, int key) {
-  pair separated = Split(root, key);
-  pair min_right = Split(separated.second, key + 1);
-  return Merge(separated.first, min_right.first);
-}
-
-Node *Build(std::vector<std::pair<int, int>> &values) {
-  Node *root = nullptr;
-  Node *last_inserted = nullptr;
-
-  for (auto value : values) {
-    auto new_node = new Node(value.first, value.second);
-    Node *curr = last_inserted;
-
-    while (curr != nullptr && value.second < curr->priority) {
-      curr = curr->parent;
+    while (curr != nullptr && new_node->priority < curr->priority) {
+      curr = curr->parent.lock();
     }
 
     if (curr == nullptr) {
@@ -103,29 +54,27 @@ Node *Build(std::vector<std::pair<int, int>> &values) {
   return root;
 }
 
-void PrintTreap(Node *root) {
-  if (root != nullptr) {
-    std::cout << (root->parent != nullptr ? root->parent->key : 0) << ' '
-              << (root->left != nullptr ? root->left->key : 0) << ' '
-              << (root->right != nullptr ? root->right->key : 0) << '\n';
-    PrintTreap(root->left);
-    PrintTreap(root->right);
-  }
-}
-
 int main() {
   int n;
   std::cin >> n;
   std::vector<std::pair<int, int>> values(n);
-
+  std::cin.tie(nullptr);
+  std::cout.tie(nullptr);
+  std::ios_base::sync_with_stdio(false);
   for (int i = 0; i < n; ++i) {
     int first, second;
     std::cin >> first >> second;
     values[i] = {first, second};
   }
 
-  Node *root = Build(values);
+  std::vector<std::shared_ptr<Node>> ans;
+  std::shared_ptr<Node> root = Build(values, ans);
+
   std::cout << "YES\n";
-  PrintTreap(root);
+  for (int i = 0; i < n; ++i) {
+    std::cout << (!(ans[i]->parent).expired() ? ans[i]->parent.lock()->number : 0) << ' ';
+    std::cout << (ans[i]->left != nullptr ? ans[i]->left->number : 0) << ' ';
+    std::cout << (ans[i]->right != nullptr ? ans[i]->right->number : 0) << '\n';
+  }
   return 0;
 }
