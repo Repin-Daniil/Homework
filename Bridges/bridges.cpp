@@ -3,13 +3,19 @@
 #include <set>
 #include <algorithm>
 #include <unordered_set>
-#include <map>
 
 using std::vector;
 struct Edge {
-  int start;
-  int finish;
+  int start = -1;
+  int finish = -1;
+  int number = -1;
   bool is_parallel = false;
+};
+
+struct pair_hash {
+  inline std::size_t operator()(const std::pair<int, int> &v) const {
+    return v.first * 31 + v.second;
+  }
 };
 
 enum Color { WHITE, GREY, BLACK };
@@ -32,15 +38,23 @@ class Graph {
     edges_ = vector<Edge>(e);
   }
 
-  void PrintArticulationPoints() {
+  void FindBridges() {
     for (auto &vertex : vertexes_) {
       if (vertex.color == WHITE) {
-        DFS(vertex, vertexes_[0]);
+        DFS(vertex, 0);
       }
     }
-    std::cout << bridges.size() << '\n';
-    for(auto x : bridges) {
-      std::cout << x.first + 1 << ' ' << x.second + 1 << '\n';
+    std::vector<int> ans;
+    for (auto x : bridges) {
+      for (auto y : edges_) {
+        if (y.start == x.first && y.finish == x.second && !y.is_parallel) {
+          ans.push_back(y.number);
+        }
+      }
+    }
+    std::cout << ans.size() << '\n';
+    for(auto x : ans) {
+      std::cout << x << '\n';
     }
   }
 
@@ -49,15 +63,21 @@ class Graph {
  private:
   vector<Vertex> vertexes_;
   std::set<std::pair<int, int>> bridges;
+  int edges_amount = 0;
   std::vector<Edge> edges_;
+
+  std::unordered_set<std::pair<int, int>, pair_hash> edges_set_;
   // Methods
-  void DFS(Vertex &curr, Vertex &ancestor) {
+  void DFS(Vertex &curr, int ancestor) {
     curr.color = GREY;
     curr.time_in = curr.time_up = ++Vertex::time;
 
     for (auto x : curr.edges) {
-      if (x == ancestor.index) {
-        continue;
+      if (x == ancestor) {
+        if (bridges.count({std::min(curr.index, ancestor), std::max(curr.index, ancestor)})) {
+          bridges.erase({std::min(curr.index, ancestor), std::max(curr.index, ancestor)});
+        }
+        continue;//Добавить проверку на наличие в bridges чтобы удалить если что
       }
 
       if (vertexes_[x].color == GREY) {
@@ -65,12 +85,12 @@ class Graph {
       }
 
       if (vertexes_[x].color == WHITE) {
-        DFS(vertexes_[x], curr);
+        DFS(vertexes_[x], curr.index);
         curr.time_up = std::min(curr.time_up, vertexes_[x].time_up);
 
         if (curr.time_in < vertexes_[x].time_up) {
 
-          bridges.insert({curr.index, x});
+          bridges.insert({std::min(curr.index, x), std::max(curr.index, x)});
         }
       }
     }
@@ -84,7 +104,14 @@ std::istream &operator>>(std::istream &is, Graph &g) {
   is >> begin >> end;
   --begin;
   --end;
-  g.edges_.push_back({std::min(begin, end), std::max(begin, end)})
+
+  bool is_parallel = g.edges_set_.count({std::min(begin, end), std::max(begin, end)});
+  ++g.edges_amount;
+  g.edges_set_.insert({begin, end});
+  g.edges_[g.edges_amount] = {std::min(begin, end), std::max(begin, end), g.edges_amount};
+  g.edges_[g.edges_amount].is_parallel = is_parallel;
+
+
   g.vertexes_[begin].index = begin;
   g.vertexes_[end].index = end;
   g.vertexes_[begin].edges.insert(end);
@@ -102,6 +129,6 @@ int main() {
     std::cin >> g;
   }
 
-  g.PrintArticulationPoints();
+  g.FindBridges();
   return 0;
 }
