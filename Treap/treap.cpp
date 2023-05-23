@@ -1,32 +1,35 @@
 #include <iostream>
 #include <vector>
-#include <memory>
 
 struct Node {
   int key = -1;
   int priority = -1;
-  int number = -1;
-  std::shared_ptr<Node> left;
-  std::shared_ptr<Node> right;
-  std::weak_ptr<Node> parent;
+  size_t number = -1;
 
-  Node() = default;
-  Node(int key, int priority, int number) : key(key), priority(priority), number(number) {
+  Node *left = nullptr;
+  Node *right = nullptr;
+  Node *parent = nullptr;
+
+  void Set(int x, int y, size_t z) {
+    key = x;
+    priority = y;
+    number = z;
   }
 };
 
-std::shared_ptr<Node> Build(std::vector<std::pair<int, int>> &values, std::vector<std::shared_ptr<Node>> &ans) {
-  std::shared_ptr<Node> root;
-  std::shared_ptr<Node> last_inserted;
+Node *Build(std::vector<std::pair<int, int>> &values, Node *nodes, std::vector<Node *> &ans) {
+  Node *root = nullptr;
+  Node *last_inserted = nullptr;
 
   for (size_t i = 0; i < values.size(); ++i) {
     auto value = values[i];
-    std::shared_ptr<Node> new_node = std::make_shared<Node>(value.first, value.second, i + 1);
+    Node *new_node = nodes + i;
+    new_node->Set(value.first, value.second, i + 1);
     ans.push_back(new_node);
-    std::shared_ptr<Node> curr = last_inserted;
+    Node *curr = last_inserted;
 
     while (curr != nullptr && new_node->priority < curr->priority) {
-      curr = curr->parent.lock();
+      curr = curr->parent;
     }
 
     if (curr == nullptr) {
@@ -57,24 +60,26 @@ std::shared_ptr<Node> Build(std::vector<std::pair<int, int>> &values, std::vecto
 int main() {
   int n;
   std::cin >> n;
+
   std::vector<std::pair<int, int>> values(n);
-  std::cin.tie(nullptr);
-  std::cout.tie(nullptr);
-  std::ios_base::sync_with_stdio(false);
+  auto nodes = new Node[n];
+
   for (int i = 0; i < n; ++i) {
     int first, second;
     std::cin >> first >> second;
     values[i] = {first, second};
   }
 
-  std::vector<std::shared_ptr<Node>> ans;
-  std::shared_ptr<Node> root = Build(values, ans);
+  std::vector<Node *> ans;
+  Build(values, nodes, ans);
 
   std::cout << "YES\n";
   for (int i = 0; i < n; ++i) {
-    std::cout << (!(ans[i]->parent).expired() ? ans[i]->parent.lock()->number : 0) << ' ';
+    std::cout << (ans[i]->parent != nullptr ? ans[i]->parent->number : 0) << ' ';
     std::cout << (ans[i]->left != nullptr ? ans[i]->left->number : 0) << ' ';
     std::cout << (ans[i]->right != nullptr ? ans[i]->right->number : 0) << '\n';
   }
+
+  delete[] nodes;
   return 0;
 }
