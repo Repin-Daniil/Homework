@@ -11,15 +11,11 @@ struct Vertex {
   int time_up = 0;
   bool visited = false;
   vector<int> edges;
-  static int time;
 };
-
-int Vertex::time;
 
 class Graph {
  public:
   explicit Graph(int n) {
-    Vertex::time = 0;
     vertexes_ = vector<Vertex>(n);
   }
 
@@ -42,11 +38,12 @@ class Graph {
  private:
   vector<Vertex> vertexes_;
   std::set<int> articulation_points_set_;
+  int time = 0;
 
   // Methods
   void DFS(Vertex &v, bool is_root) {
     v.visited = true;
-    v.time_in = v.time_up = ++Vertex::time;
+    v.time_in = v.time_up = ++time;
     int children_amount = 0;
 
     for (auto x : v.edges) {
