@@ -4,25 +4,28 @@
 struct Node {
   int key = -1;
   int priority = -1;
+  size_t number = -1;
 
   Node *left = nullptr;
   Node *right = nullptr;
   Node *parent = nullptr;
 
-  void Set(int x, int y) {
+  void Set(int x, int y, size_t z) {
     key = x;
     priority = y;
+    number = z;
   }
 };
 
-Node *Build(std::vector<std::pair<int, int>> &values, Node *nodes) {
+std::vector<Node *> Build(std::vector<std::pair<int, int>> &values, Node *nodes) {
   Node *root = nullptr;
   Node *last_inserted = nullptr;
+  std::vector<Node *> ans;
 
   for (size_t i = 0; i < values.size(); ++i) {
-    auto value = values[i];
     Node *new_node = nodes + i;
-    new_node->Set(value.first, value.second);
+    new_node->Set(values[i].first, values[i].second, i + 1);
+    ans.push_back(new_node);
     Node *curr = last_inserted;
 
     while (curr != nullptr && new_node->priority < curr->priority) {
@@ -51,7 +54,7 @@ Node *Build(std::vector<std::pair<int, int>> &values, Node *nodes) {
     last_inserted = new_node;
   }
 
-  return root;
+  return ans;
 }
 
 int main() {
@@ -67,13 +70,11 @@ int main() {
     values[i] = {first, second};
   }
 
-  Build(values, nodes);
-
   std::cout << "YES\n";
-  for (int i = 0; i < n; ++i) {
-    std::cout << (nodes[i].parent != nullptr ? nodes[i].parent->key + 1: 0) << ' ';
-    std::cout << (nodes[i].left != nullptr ? nodes[i].left->key + 1 : 0) << ' ';
-    std::cout << (nodes[i].right != nullptr ? nodes[i].right->key + 1 : 0) << '\n';
+  for (auto &node : Build(values, nodes)) {
+    std::cout << (node->parent != nullptr ? node->parent->number : 0) << ' ';
+    std::cout << (node->left != nullptr ? node->left->number : 0) << ' ';
+    std::cout << (node->right != nullptr ? node->right->number : 0) << '\n';
   }
 
   delete[] nodes;
