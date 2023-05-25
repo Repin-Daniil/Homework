@@ -54,11 +54,14 @@ string Predict(string &before_rotation, string &after_rotation) {
 
 int main() {
   int n;
+  string before_rotation, after_rotation;
+
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
   std::ios_base::sync_with_stdio(false);
-  string before_rotation, after_rotation;
+
   std::cin >> n >> before_rotation >> after_rotation;
   std::cout << Predict(before_rotation, after_rotation);
+
   return 0;
 }
