@@ -37,7 +37,7 @@ class Graph {
   vector<Vertex> vertexes_;
   vector<vector<int>> edges_;
   std::set<int> bridges_;
-  std::map<std::pair<int, int>, int> edges_dict_;
+  std::map<std::pair<int, int>, int> edge_numbers_;
   int edges_counter_ = 0;
   int time_ = 0;
 
@@ -58,8 +58,8 @@ class Graph {
         DFS(vertexes_[x], curr.index);
         curr.time_up = std::min(curr.time_up, vertexes_[x].time_up);
 
-        if (curr.time_in < vertexes_[x].time_up && edges_dict_[{curr.index, vertexes_[x].index}] != -1) {
-          bridges_.insert(edges_dict_[{curr.index, vertexes_[x].index}]);
+        if (curr.time_in < vertexes_[x].time_up && edge_numbers_[{curr.index, vertexes_[x].index}] != -1) {
+          bridges_.insert(edge_numbers_[{curr.index, vertexes_[x].index}]);
         }
       }
     }
@@ -73,16 +73,17 @@ std::istream &operator>>(std::istream &is, Graph &g) {
   is >> begin >> end;
   --begin;
   --end;
+  ++g.edges_counter_;
 
   if (begin == end) {
     // Loop
     return is;
   }
 
-  if (g.edges_dict_.count(std::pair(begin, end)) > 0) {
+  if (g.edge_numbers_.count(std::pair(begin, end)) > 0) {
     // Multiple edge
-    g.edges_dict_[{begin, end}] = -1;
-    g.edges_dict_[{end, begin}] = -1;
+    g.edge_numbers_[{begin, end}] = -1;
+    g.edge_numbers_[{end, begin}] = -1;
     return is;
   }
 
@@ -90,8 +91,7 @@ std::istream &operator>>(std::istream &is, Graph &g) {
   g.vertexes_[end].index = end;
   g.edges_[begin].push_back(end);
   g.edges_[end].push_back(begin);
-  g.edges_dict_[{begin, end}] = ++g.edges_counter_;
-  g.edges_dict_[{end, begin}] = g.edges_counter_;
+  g.edge_numbers_[{begin, end}] = g.edge_numbers_[{end, begin}] = g.edges_counter_;
 
   return is;
 }
