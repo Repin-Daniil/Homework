@@ -1,5 +1,6 @@
 #ifndef RATIONAL_H
 #define RATIONAL_H
+
 #include <iostream>
 #include <numeric>
 #include <stdexcept>
@@ -63,4 +64,5 @@ Rational operator+(const Rational &elem);  // Unary plus
 std::istream &operator>>(std::istream &is, Rational &r);        // input
 std::ostream &operator<<(std::ostream &os, Rational &r);        // output
 std::ostream &operator<<(std::ostream &os, const Rational &r);  // output
+
 #endif
