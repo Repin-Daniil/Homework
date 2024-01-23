@@ -1,0 +1,2 @@
+add_executable(shared_ptr_test shared_ptr_test.cpp)
+add_test(NAME SHARED_PTR_TEST COMMAND shared_ptr_test)
