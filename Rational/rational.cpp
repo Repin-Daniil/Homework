@@ -5,13 +5,14 @@ Rational::Rational() {
   denominator_ = 1;
 }
 
-Rational::Rational(int p, int q) {
-  if (q == 0) {
+Rational::Rational(int numerator, int denominator) {
+  if (denominator == 0) {
     throw RationalDivisionByZero{};
   }
 
-  numerator_ = p;
-  denominator_ = q;
+  this->numerator_ = numerator;
+  this->denominator_ = denominator;
+
   Reduce();
 }
 
@@ -55,6 +56,7 @@ Rational &Rational::operator+=(const Rational &other) {
   numerator_ = numerator_ * other.denominator_ + other.numerator_ * denominator_;
   denominator_ = denominator_ * other.denominator_;
   Reduce();
+
   return *this;
 }
 
@@ -62,6 +64,7 @@ Rational &Rational::operator-=(const Rational &other) {
   numerator_ = numerator_ * other.denominator_ - other.numerator_ * denominator_;
   denominator_ = denominator_ * other.denominator_;
   Reduce();
+
   return *this;
 }
 
@@ -69,6 +72,7 @@ Rational &Rational::operator*=(const Rational &other) {
   numerator_ = numerator_ * other.numerator_;
   denominator_ = denominator_ * other.denominator_;
   Reduce();
+
   return *this;
 }
 
@@ -80,6 +84,7 @@ Rational &Rational::operator/=(const Rational &other) {
   numerator_ = numerator_ * other.denominator_;
   denominator_ = denominator_ * other.numerator_;
   Reduce();
+
   return *this;
 }
 
@@ -91,6 +96,7 @@ Rational &Rational::operator++() {
 Rational Rational::operator++(int) {
   Rational copy = *this;
   ++*this;
+
   return copy;
 }
 
@@ -102,30 +108,35 @@ Rational &Rational::operator--() {
 Rational Rational::operator--(int) {
   Rational copy = *this;
   --*this;
+
   return copy;
 }
 
 Rational operator+(const Rational &first, const Rational &second) {
   Rational copy = first;
   copy += second;
+
   return copy;
 }
 
 Rational operator-(const Rational &first, const Rational &second) {
   Rational copy = first;
   copy -= second;
+
   return copy;
 }
 
 Rational operator*(const Rational &first, const Rational &second) {
   Rational copy = first;
   copy *= second;
+
   return copy;
 }
 
 Rational operator/(const Rational &first, const Rational &second) {
   Rational copy = first;
   copy /= second;
+
   return copy;
 }
 
