@@ -1,1 +1,2 @@
 add_executable(unique_ptr_test unique_ptr_test.cpp)
+add_test(NAME UNIQUE_PTR_TEST COMMAND unique_ptr_test)
