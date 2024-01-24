@@ -545,8 +545,8 @@ SCENARIO("Input and output operators", "[Rational]") {
       Rational a, b;
       input >> a >> b;
 
-      assert(a == Rational(-1, 12));
-      assert(b == Rational(2));
+      CHECK(a == Rational(-1, 12));
+      CHECK(b == Rational(2));
     }
   }
 

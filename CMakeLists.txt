@@ -8,10 +8,9 @@ include_directories(.)
 
 enable_testing()
 
-#add_subdirectory(Array)
 add_subdirectory(Rational)
 add_subdirectory(Itertools.Range)
 add_subdirectory(SharedPtr)
-#add_subdirectory(UniquePtr)
+add_subdirectory(UniquePtr)
 #add_subdirectory(StringView)
 
