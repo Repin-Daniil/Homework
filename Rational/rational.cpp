@@ -10,8 +10,8 @@ Rational::Rational(int numerator, int denominator) {
     throw RationalDivisionByZero{};
   }
 
-  this->numerator_ = numerator;
-  this->denominator_ = denominator;
+  numerator_ = numerator;
+  denominator_ = denominator;
 
   Reduce();
 }
@@ -48,8 +48,8 @@ void Rational::Reduce() {
   numerator_ /= gcd;
   denominator_ /= gcd;
 
-  this->numerator_ = (denominator_ < 0) ? -numerator_ : numerator_;
-  this->denominator_ = (denominator_ < 0) ? -denominator_ : denominator_;
+  numerator_ = (denominator_ < 0) ? -numerator_ : numerator_;
+  denominator_ = (denominator_ < 0) ? -denominator_ : denominator_;
 }
 
 Rational &Rational::operator+=(const Rational &other) {

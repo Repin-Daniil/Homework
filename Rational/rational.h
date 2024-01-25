@@ -15,7 +15,7 @@ class Rational {
  public:
   // Constructors
   Rational();
-  Rational(int p, int q = 1);  // NOLINT
+  Rational(int numerator, int denominator = 1);  // NOLINT
   Rational(const Rational &);
 
   // Setters
@@ -38,11 +38,11 @@ class Rational {
   Rational operator--(int);  // Postfix decrement
 
  private:
+  void Reduce();
+
+ private:
   int numerator_;
   int denominator_;
-
-  // Methods
-  void Reduce();
 };
 
 // Operators overloading
