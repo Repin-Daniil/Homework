@@ -63,7 +63,7 @@ void StringView::RemoveSuffix(size_t suffix_size) {
 }
 
 StringView StringView::Substr(size_t pos, size_t count) {
-  if (pos + std::min(count, Size() - pos) > Size()) {
+  if (pos > Size()) {
     throw StringViewOutOfRange{};
   }
 

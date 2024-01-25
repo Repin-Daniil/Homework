@@ -1,0 +1,2 @@
+add_executable(string_view_test string_view_test.cpp string_view.h string_view.cpp)
+add_test(NAME STRING_VIEW_TEST COMMAND string_view_test)
